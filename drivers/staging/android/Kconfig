@@ -1,0 +1,9 @@
+menu "Android"
+
+if ANDROID
+
+source "drivers/staging/android/fiq_debugger/Kconfig"
+
+endif # if ANDROID
+
+endmenu
