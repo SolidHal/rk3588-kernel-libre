@@ -107,7 +107,7 @@ void clk_fractional_divider_general_approximation(struct clk_hw *hw,
 						  unsigned long *m, unsigned long *n)
 {
 	struct clk_fractional_divider *fd = to_clk_fd(hw);
-
+	unsigned long scale;
 	/*
 	 * Get rate closer to *parent_rate to guarantee there is no overflow
 	 * for m and n. In the result it will be the nearest rate left shifted
@@ -115,12 +115,9 @@ void clk_fractional_divider_general_approximation(struct clk_hw *hw,
 	 *
 	 * For the detailed explanation see the top comment in this file.
 	 */
-	if (fd->flags & CLK_FRAC_DIVIDER_POWER_OF_TWO_PS) {
-		unsigned long scale = fls_long(*parent_rate / rate - 1);
-
-		if (scale > fd->nwidth)
-			rate <<= scale - fd->nwidth;
-	}
+  scale = fls_long(*parent_rate / rate - 1);
+  if (scale > fd->nwidth)
+    rate <<= scale - fd->nwidth;
 
 	rational_best_approximation(rate, *parent_rate,
 			GENMASK(fd->mwidth - 1, 0), GENMASK(fd->nwidth - 1, 0),
@@ -134,7 +131,7 @@ static long clk_fd_round_rate(struct clk_hw *hw, unsigned long rate,
 	unsigned long m, n;
 	u64 ret;
 
-	if (!rate || (!clk_hw_can_set_rate_parent(hw) && rate >= *parent_rate))
+	if (!rate && rate >= *parent_rate)
 		return *parent_rate;
 
 	if (fd->approximation)
@@ -164,6 +161,32 @@ static int clk_fd_set_rate(struct clk_hw *hw, unsigned long rate,
 		m--;
 		n--;
 	}
+   /*
+    * When compensation the fractional divider,
+    * the [1:0] bits of the numerator register are omitted,
+    * which will lead to a large deviation in the result.
+    * Therefore, it is required that the numerator must
+    * be greater than 4.
+    *
+    * Note that there are some exceptions here:
+    * If there is an even frac div, we need to keep the original
+    * numerator(<4) and denominator. Otherwise, it may cause the
+    * issue that the duty ratio is not 50%.
+    */
+   if (m < 4 && m != 0) {
+       if (n % 2 == 0)
+           val = 1;
+       else
+           val = DIV_ROUND_UP(4, m);
+
+       n *= val;
+       m *= val;
+       if (n > fd->nmask) {
+           pr_debug("%s n(%ld) is overflow, use mask value\n",
+                __func__, n);
+           n = fd->nmask;
+       }
+   }
 
 	if (fd->lock)
 		spin_lock_irqsave(fd->lock, flags);
