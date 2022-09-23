@@ -32,6 +32,7 @@
 #include <linux/smp.h>
 #include <linux/timer.h>
 #include <linux/tty.h>
+#include <linux/tty_driver.h>
 #include <linux/tty_flip.h>
 /* #include <linux/wakelock.h> */
 #include <linux/ptrace.h>
@@ -99,7 +100,6 @@ struct fiq_debugger_state {
 	struct timer_list sleep_timer;
 	spinlock_t sleep_timer_lock;
 	bool uart_enabled;
-	struct wake_lock debugger_wake_lock;
 	bool console_enable;
 	int current_cpu;
 	atomic_t unhandled_fiq_count;
@@ -254,17 +254,7 @@ static void fiq_debugger_prompt(struct fiq_debugger_state *state)
 
 static void fiq_debugger_dump_kernel_log(struct fiq_debugger_state *state)
 {
-	char buf[512];
-	size_t len;
-	struct kmsg_dumper dumper = { .active = true };
-
-
-	kmsg_dump_rewind_nolock(&dumper);
-	while (kmsg_dump_get_line_nolock(&dumper, true, buf,
-					 sizeof(buf) - 1, &len)) {
-		buf[len] = 0;
-		fiq_debugger_puts(state, buf);
-	}
+  pr_err("fiq_debugger_dump_kernel_log unimplemented\n");
 }
 
 static void fiq_debugger_printf(struct fiq_debugger_output *output,
@@ -303,46 +293,12 @@ static int fiq_debugger_printf_nfiq(void *cookie, const char *fmt, ...)
 
 static void fiq_debugger_dump_irqs(struct fiq_debugger_state *state)
 {
-	int n;
-	struct irq_desc *desc;
-
-	fiq_debugger_printf(&state->output,
-			"irqnr       total  since-last   status  name\n");
-	for_each_irq_desc(n, desc) {
-		struct irqaction *act = desc->action;
-		if (!act && !kstat_irqs(n))
-			continue;
-		fiq_debugger_printf(&state->output, "%5d: %10u %11u %8x  %s\n", n,
-			kstat_irqs(n),
-			kstat_irqs(n) - state->last_irqs[n],
-			desc->status_use_accessors,
-			(act && act->name) ? act->name : "???");
-		state->last_irqs[n] = kstat_irqs(n);
-	}
+  pr_err("fiq_debugger_dump_irqs unimplemented\n");
 }
 
 static void fiq_debugger_do_ps(struct fiq_debugger_state *state)
 {
-	struct task_struct *g;
-	struct task_struct *p;
-	unsigned task_state;
-	static const char stat_nam[] = "RSDTtZX";
-
-	fiq_debugger_printf(&state->output, "pid   ppid  prio task            pc\n");
-	read_lock(&tasklist_lock);
-	do_each_thread(g, p) {
-		task_state = p->state ? __ffs(p->state) + 1 : 0;
-		fiq_debugger_printf(&state->output,
-			     "%5d %5d %4d ", p->pid, p->parent->pid, p->prio);
-		fiq_debugger_printf(&state->output, "%-13.13s %c", p->comm,
-			     task_state >= sizeof(stat_nam) ? '?' : stat_nam[task_state]);
-		if (task_state == TASK_RUNNING)
-			fiq_debugger_printf(&state->output, " running\n");
-		else
-			fiq_debugger_printf(&state->output, " %08lx\n",
-					thread_saved_pc(p));
-	} while_each_thread(g, p);
-	read_unlock(&tasklist_lock);
+  pr_err("fiq_debugger_do_ps unimplemented\n");
 }
 
 #ifdef CONFIG_FIQ_DEBUGGER_CONSOLE
@@ -585,13 +541,6 @@ static bool fiq_debugger_fiq_exec(struct fiq_debugger_state *state,
 			void *svc_sp)
 {
 	bool signal_helper = false;
-	unsigned long va_start;
-
-#ifdef CONFIG_ARM64
-	va_start = VA_START;
-#else
-	va_start = PAGE_OFFSET;
-#endif
 	if (!strcmp(cmd, "help") || !strcmp(cmd, "?")) {
 		fiq_debugger_help(state);
 	} else if (!strcmp(cmd, "pc")) {
@@ -600,15 +549,6 @@ static bool fiq_debugger_fiq_exec(struct fiq_debugger_state *state,
 		fiq_debugger_dump_regs(&state->output, regs);
 	} else if (!strcmp(cmd, "allregs")) {
 		fiq_debugger_dump_allregs(&state->output, regs);
-	} else if (!strcmp(cmd, "bt")) {
-		if (user_mode((struct pt_regs *)regs) ||
-		    ((unsigned long)svc_sp < va_start) ||
-		    ((unsigned long)svc_sp > -256UL))
-			fiq_debugger_printf(&state->output, "User mode\n");
-		else
-			fiq_debugger_dump_stacktrace(&state->output, regs,
-						     100, svc_sp);
-
 	} else if (!strncmp(cmd, "reset", 5)) {
 		cmd += 5;
 		while (*cmd == ' ')
@@ -670,9 +610,10 @@ static bool fiq_debugger_fiq_exec(struct fiq_debugger_state *state,
 	return signal_helper;
 }
 
-static void fiq_debugger_sleep_timer_expired(unsigned long data)
+static void fiq_debugger_sleep_timer_expired(struct timer_list *t)
 {
-	struct fiq_debugger_state *state = (struct fiq_debugger_state *)data;
+
+  struct fiq_debugger_state *state = from_timer(state, t, sleep_timer);
 	unsigned long flags;
 
 	spin_lock_irqsave(&state->sleep_timer_lock, flags);
@@ -687,7 +628,6 @@ static void fiq_debugger_sleep_timer_expired(unsigned long data)
 		state->uart_enabled = false;
 		fiq_debugger_enable_wakeup_irq(state);
 	}
-	wake_unlock(&state->debugger_wake_lock);
 	spin_unlock_irqrestore(&state->sleep_timer_lock, flags);
 }
 
@@ -699,7 +639,6 @@ static void fiq_debugger_handle_wakeup(struct fiq_debugger_state *state)
 	if (state->wakeup_irq >= 0 && state->ignore_next_wakeup_irq) {
 		state->ignore_next_wakeup_irq = false;
 	} else if (!state->uart_enabled) {
-		wake_lock(&state->debugger_wake_lock);
 		fiq_debugger_uart_enable(state);
 		state->uart_enabled = true;
 		fiq_debugger_disable_wakeup_irq(state);
@@ -743,7 +682,6 @@ static void fiq_debugger_handle_irq_context(struct fiq_debugger_state *state)
 		unsigned long flags;
 
 		spin_lock_irqsave(&state->sleep_timer_lock, flags);
-		wake_lock(&state->debugger_wake_lock);
 		mod_timer(&state->sleep_timer, jiffies + HZ * 5);
 		spin_unlock_irqrestore(&state->sleep_timer_lock, flags);
 	}
@@ -1166,7 +1104,7 @@ int  fiq_tty_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	return count;
 }
 
-int  fiq_tty_write_room(struct tty_struct *tty)
+unsigned int  fiq_tty_write_room(struct tty_struct *tty)
 {
 	return 16;
 }
@@ -1233,7 +1171,8 @@ static int fiq_tty_proc_show(struct seq_file *m, void *v)
 
 static int fiq_tty_proc_open(struct inode *inode, struct file *file)
 {
-	return single_open(file, fiq_tty_proc_show, PDE_DATA(inode));
+  // Could also try PDE(inode)?
+	return single_open(file, fiq_tty_proc_show, inode);
 }
 
 static const struct file_operations fiq_tty_proc_fops = {
@@ -1257,14 +1196,15 @@ static const struct tty_operations fiq_tty_driver_ops = {
 	.poll_get_char = fiq_tty_poll_get_char,
 	.poll_put_char = fiq_tty_poll_put_char,
 #endif
-#ifdef CONFIG_PROC_FS
-	.proc_fops = &fiq_tty_proc_fops,
-#endif
+/* #ifdef CONFIG_PROC_FS */
+/* 	.proc_fops = &fiq_tty_proc_fops, */
+/* #endif */
 };
 
 static int fiq_debugger_tty_init(void)
 {
 	int ret;
+  unsigned long flags = 0;
 	struct fiq_debugger_state **states = NULL;
 
 	states = kzalloc(sizeof(*states) * MAX_FIQ_DEBUGGER_PORTS, GFP_KERNEL);
@@ -1273,7 +1213,7 @@ static int fiq_debugger_tty_init(void)
 		return -ENOMEM;
 	}
 
-	fiq_tty_driver = alloc_tty_driver(MAX_FIQ_DEBUGGER_PORTS);
+	fiq_tty_driver = tty_alloc_driver(MAX_FIQ_DEBUGGER_PORTS, flags);
 	if (!fiq_tty_driver) {
 		pr_err("Failed to allocate fiq debugger tty\n");
 		ret = -ENOMEM;
@@ -1307,7 +1247,7 @@ static int fiq_debugger_tty_init(void)
 	return 0;
 
 err_free_tty:
-	put_tty_driver(fiq_tty_driver);
+	tty_driver_kref_put(fiq_tty_driver);
 	fiq_tty_driver = NULL;
 err_free_state:
 	kfree(states);
@@ -1403,8 +1343,7 @@ static int fiq_debugger_probe(struct platform_device *pdev)
 #endif
 	state = kzalloc(sizeof(*state), GFP_KERNEL);
 	state->output.printf = fiq_debugger_printf;
-	setup_timer(&state->sleep_timer, fiq_debugger_sleep_timer_expired,
-		    (unsigned long)state);
+	timer_setup(&state->sleep_timer, fiq_debugger_sleep_timer_expired, 0);
 	state->pdata = pdata;
 	state->pdev = pdev;
 	state->no_sleep = initial_no_sleep;
@@ -1427,8 +1366,6 @@ static int fiq_debugger_probe(struct platform_device *pdev)
 		state->no_sleep = true;
 	state->ignore_next_wakeup_irq = !state->no_sleep;
 
-	wake_lock_init(&state->debugger_wake_lock,
-			WAKE_LOCK_SUSPEND, "serial-debug");
 #ifdef CONFIG_ARCH_ROCKCHIP
 	if (uart_irq < 0 && fiq < 0)
 		goto console_out;
@@ -1547,7 +1484,6 @@ err_uart_init:
 		clk_disable(state->clk);
 	if (state->clk)
 		clk_put(state->clk);
-	wake_lock_destroy(&state->debugger_wake_lock);
 	platform_set_drvdata(pdev, NULL);
 	kfree(state);
 	return ret;

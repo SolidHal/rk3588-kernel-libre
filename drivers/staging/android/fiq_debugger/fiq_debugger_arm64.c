@@ -14,7 +14,7 @@
  */
 
 #include <linux/ptrace.h>
-#include <asm/stacktrace.h>
+#include <linux/stacktrace.h>
 
 #include "fiq_debugger_priv.h"
 
@@ -157,50 +157,8 @@ struct stacktrace_state {
 	unsigned int depth;
 };
 
-static int report_trace(struct stackframe *frame, void *d)
-{
-	struct stacktrace_state *sts = d;
-
-	if (sts->depth) {
-		sts->output->printf(sts->output, "%pF:\n", frame->pc);
-		sts->output->printf(sts->output,
-				"  pc %016lx   sp %016lx   fp %016lx\n",
-				frame->pc, frame->sp, frame->fp);
-		sts->depth--;
-		return 0;
-	}
-	sts->output->printf(sts->output, "  ...\n");
-
-	return sts->depth == 0;
-}
-
 void fiq_debugger_dump_stacktrace(struct fiq_debugger_output *output,
 		const struct pt_regs *regs, unsigned int depth, void *ssp)
 {
-#ifndef CONFIG_THREAD_INFO_IN_TASK
-	struct thread_info *real_thread_info = THREAD_INFO(ssp);
-#endif
-	struct stacktrace_state sts;
-
-	sts.depth = depth;
-	sts.output = output;
-#ifndef CONFIG_THREAD_INFO_IN_TASK
-	*current_thread_info() = *real_thread_info;
-#endif
-
-	if (!current)
-		output->printf(output, "current NULL\n");
-	else
-		output->printf(output, "pid: %d  comm: %s\n",
-			current->pid, current->comm);
-	fiq_debugger_dump_regs(output, regs);
-
-	if (!user_mode(regs)) {
-		struct stackframe frame;
-		frame.fp = regs->regs[29];
-		frame.sp = regs->sp;
-		frame.pc = regs->pc;
-		output->printf(output, "\n");
-		walk_stackframe(current, &frame, report_trace, &sts);
-	}
+  pr_err("fiq_debugger_dump_stacktrace\n");
 }

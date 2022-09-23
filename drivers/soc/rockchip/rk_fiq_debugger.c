@@ -437,17 +437,17 @@ static int rk_fiq_debugger_register_cpu_pm_notify(void)
 {
 	int err;
 
-	err = register_cpu_notifier(&fiq_debugger_cpu_notifier);
-	if (err) {
-		pr_err("fiq debugger register cpu notifier failed!\n");
-		return err;
-	}
+	/* err = register_cpu_notifier(&fiq_debugger_cpu_notifier); */
+	/* if (err) { */
+	/* 	pr_err("fiq debugger register cpu notifier failed!\n"); */
+	/* 	return err; */
+	/* } */
 
-	err = cpu_pm_register_notifier(&fiq_debugger_pm_notifier);
-	if (err) {
-		pr_err("fiq debugger register pm notifier failed!\n");
-		return err;
-	}
+	/* err = cpu_pm_register_notifier(&fiq_debugger_pm_notifier); */
+	/* if (err) { */
+	/* 	pr_err("fiq debugger register pm notifier failed!\n"); */
+	/* 	return err; */
+	/* } */
 
 	return 0;
 }
