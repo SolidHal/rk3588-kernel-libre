@@ -178,6 +178,10 @@
 	status = "okay";
 };
 
+&fiq_debugger{
+		status = "disabled";
+};
+
 &uart2{
 	pinctrl-0 = <&uart2m1_xfer>;
 	status = "okay";
