@@ -49,7 +49,7 @@
 		interrupts = <GIC_SPI 423 IRQ_TYPE_LEVEL_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&uart2m0_xfer>;
-		status = "okay";
+		status = "disable";
 	};
 
 	firmware {
