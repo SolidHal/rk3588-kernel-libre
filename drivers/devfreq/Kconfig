@@ -141,6 +141,23 @@ config ARM_SUN8I_A33_MBUS_DEVFREQ
 	  This adds the DEVFREQ driver for the MBUS controller in some
 	  Allwinner sun8i (A33 through H3) and sun50i (A64 and H5) SoCs.
 
+config ARM_ROCKCHIP_BUS_DEVFREQ
+	tristate "ARM ROCKCHIP BUS DEVFREQ Driver"
+	depends on ARCH_ROCKCHIP
+	help
+	  This adds the DEVFREQ driver for the ROCKCHIP BUS.
+
+config ARM_ROCKCHIP_DMC_DEVFREQ
+	tristate "ARM ROCKCHIP DMC DEVFREQ Driver"
+	depends on (ARCH_ROCKCHIP && HAVE_ARM_SMCCC) || \
+		(COMPILE_TEST && HAVE_ARM_SMCCC)
+	select DEVFREQ_EVENT_ROCKCHIP_DFI
+	select PM_DEVFREQ_EVENT
+	help
+	  This adds the DEVFREQ driver for the ROCKCHIP DMC(Dynamic Memory Controller).
+	  It sets the frequency for the memory controller and reads the usage counts
+	  from hardware.
+
 source "drivers/devfreq/event/Kconfig"
 
 endif # PM_DEVFREQ

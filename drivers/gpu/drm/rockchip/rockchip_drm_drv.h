@@ -66,6 +66,14 @@ void rockchip_drm_dma_init_device(struct drm_device *drm_dev,
 int rockchip_drm_wait_vact_end(struct drm_crtc *crtc, unsigned int mstimeout);
 int rockchip_drm_encoder_set_crtc_endpoint_id(struct rockchip_encoder *rencoder,
 					      struct device_node *np, int port, int reg);
+#if IS_REACHABLE(CONFIG_DRM_ROCKCHIP)
+int rockchip_drm_get_sub_dev_type(void);
+#else
+static inline int rockchip_drm_get_sub_dev_type(void)
+{
+	return DRM_MODE_CONNECTOR_Unknown;
+}
+#endif
 int rockchip_drm_endpoint_is_subdriver(struct device_node *ep);
 extern struct platform_driver cdn_dp_driver;
 extern struct platform_driver dw_hdmi_rockchip_pltfm_driver;
