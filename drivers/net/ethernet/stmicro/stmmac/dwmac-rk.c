@@ -2361,8 +2361,6 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	const struct rk_gmac_ops *data;
 	int ret;
 
-  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe\n");
-
 	data = of_device_get_match_data(&pdev->dev);
 	if (!data) {
 		dev_err(&pdev->dev, "no of match data provided\n");
@@ -2371,13 +2369,11 @@ static int rk_gmac_probe(struct platform_device *pdev)
 
 	ret = stmmac_get_platform_resources(pdev, &stmmac_res);
 	if (ret){
-    dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: get_platform_resources failed: error %d\n", ret);
 		return ret;
   }
 
 	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
 	if (IS_ERR(plat_dat)){
-    dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: probe_config_dt failed\n");
 		return PTR_ERR(plat_dat);
   }
 
@@ -2411,7 +2407,6 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_gmac_powerdown;
 
-  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: completed\n");
 	return 0;
 
 err_gmac_powerdown:
@@ -2419,7 +2414,6 @@ err_gmac_powerdown:
 err_remove_config_dt:
 	stmmac_remove_config_dt(pdev, plat_dat);
 
-  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: error %d\n", ret);
 	return ret;
 }
 
