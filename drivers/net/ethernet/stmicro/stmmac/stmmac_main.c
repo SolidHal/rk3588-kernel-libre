@@ -1122,6 +1122,10 @@ static int stmmac_init_phy(struct net_device *dev)
 	struct device_node *node;
 	int ret;
 
+	if (priv->plat->integrated_phy_power){
+		ret = priv->plat->integrated_phy_power(priv->plat->bsp_priv, true);
+  }
+
 	node = priv->plat->phylink_node;
 
 	if (node)
@@ -2809,6 +2813,10 @@ static void stmmac_check_ether_addr(struct stmmac_priv *priv)
 		stmmac_get_umac_addr(priv, priv->hw, addr, 0);
 		if (is_valid_ether_addr(addr))
 			eth_hw_addr_set(priv->dev, addr);
+    else if (priv->plat->get_eth_addr) {
+      priv->plat->get_eth_addr(priv->plat->bsp_priv,
+                               priv->dev->dev_addr);
+    }
 		else
 			eth_hw_addr_random(priv->dev);
 		dev_info(priv->device, "device MAC address %pM\n",
@@ -3769,6 +3777,10 @@ static int stmmac_release(struct net_device *dev)
 	/* Stop and disconnect the PHY */
 	phylink_stop(priv->phylink);
 	phylink_disconnect_phy(priv->phylink);
+
+	if (priv->plat->integrated_phy_power){
+		priv->plat->integrated_phy_power(priv->plat->bsp_priv, false);
+  }
 
 	stmmac_disable_all_queues(priv);
 
@@ -7286,6 +7298,9 @@ int stmmac_suspend(struct device *dev)
 		stmmac_pmt(priv, priv->hw, priv->wolopts);
 		priv->irq_wake = 1;
 	} else {
+		if (priv->plat->integrated_phy_power) {
+			priv->plat->integrated_phy_power(priv->plat->bsp_priv, false);
+    }
 		stmmac_mac_set(priv, priv->ioaddr, false);
 		pinctrl_pm_select_sleep_state(priv->device);
 	}
@@ -7391,6 +7406,10 @@ int stmmac_resume(struct device *dev)
 		phylink_resume(priv->phylink);
 	} else {
 		phylink_resume(priv->phylink);
+		if (priv->plat->integrated_phy_power){
+			priv->plat->integrated_phy_power(priv->plat->bsp_priv,
+                                       true);
+    }
 		if (device_may_wakeup(priv->device))
 			phylink_speed_up(priv->phylink);
 	}

@@ -2333,7 +2333,7 @@ static void rk_get_eth_addr(void *priv, unsigned char *addr)
 	    !is_valid_ether_addr(&ethaddr[id * ETH_ALEN])) {
 		dev_err(dev, "%s: rk_vendor_read eth mac address failed (%d)\n",
 			__func__, ret);
-		random_ether_addr(&ethaddr[id * ETH_ALEN]);
+		eth_random_addr(&ethaddr[id * ETH_ALEN]);
 		memcpy(addr, &ethaddr[id * ETH_ALEN], ETH_ALEN);
 		dev_err(dev, "%s: generate random eth mac address: %pM\n", __func__, addr);
 
@@ -2371,7 +2371,7 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 
