@@ -2102,42 +2102,18 @@ static __maybe_unused int rv1126_dmc_init(struct platform_device *pdev,
 }
 
 static const struct of_device_id rockchip_dmcfreq_of_match[] = {
-#if IS_ENABLED(CONFIG_CPU_PX30)
 	{ .compatible = "rockchip,px30-dmc", .data = px30_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK1808)
 	{ .compatible = "rockchip,rk1808-dmc", .data = rk1808_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK312X)
 	{ .compatible = "rockchip,rk3128-dmc", .data = rk3128_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK322X)
 	{ .compatible = "rockchip,rk3228-dmc", .data = rk3228_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3288)
 	{ .compatible = "rockchip,rk3288-dmc", .data = rk3288_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3308)
 	{ .compatible = "rockchip,rk3308-dmc", .data = NULL },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3328)
 	{ .compatible = "rockchip,rk3328-dmc", .data = rk3328_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3368)
 	{ .compatible = "rockchip,rk3368-dmc", .data = rk3368_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3399)
 	{ .compatible = "rockchip,rk3399-dmc", .data = rk3399_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3568)
 	{ .compatible = "rockchip,rk3568-dmc", .data = rk3568_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RK3588)
 	{ .compatible = "rockchip,rk3588-dmc", .data = rk3588_dmc_init },
-#endif
-#if IS_ENABLED(CONFIG_CPU_RV1126)
 	{ .compatible = "rockchip,rv1126-dmc", .data = rv1126_dmc_init },
-#endif
 	{ },
 };
 MODULE_DEVICE_TABLE(of, rockchip_dmcfreq_of_match);
