@@ -2361,6 +2361,8 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	const struct rk_gmac_ops *data;
 	int ret;
 
+  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe\n");
+
 	data = of_device_get_match_data(&pdev->dev);
 	if (!data) {
 		dev_err(&pdev->dev, "no of match data provided\n");
@@ -2368,12 +2370,16 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	}
 
 	ret = stmmac_get_platform_resources(pdev, &stmmac_res);
-	if (ret)
+	if (ret){
+    dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: get_platform_resources failed: error %d\n", ret);
 		return ret;
+  }
 
 	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
-	if (IS_ERR(plat_dat))
+	if (IS_ERR(plat_dat)){
+    dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: probe_config_dt failed\n");
 		return PTR_ERR(plat_dat);
+  }
 
 	if (!of_device_is_compatible(pdev->dev.of_node, "snps,dwmac-4.20a"))
 		plat_dat->has_gmac = true;
@@ -2405,6 +2411,7 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_gmac_powerdown;
 
+  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: completed\n");
 	return 0;
 
 err_gmac_powerdown:
@@ -2412,6 +2419,7 @@ err_gmac_powerdown:
 err_remove_config_dt:
 	stmmac_remove_config_dt(pdev, plat_dat);
 
+  dev_warn(&pdev->dev, "SOLIDHAL rk_gmac_probe: error %d\n", ret);
 	return ret;
 }
 
@@ -2458,51 +2466,21 @@ static int rk_gmac_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(rk_gmac_pm_ops, rk_gmac_suspend, rk_gmac_resume);
 
 static const struct of_device_id rk_gmac_dwmac_match[] = {
-#ifdef CONFIG_CPU_PX30
 	{ .compatible = "rockchip,px30-gmac",	.data = &px30_ops   },
-#endif
-#ifdef CONFIG_CPU_RK1808
 	{ .compatible = "rockchip,rk1808-gmac", .data = &rk1808_ops },
-#endif
-#ifdef CONFIG_CPU_RK312X
 	{ .compatible = "rockchip,rk3128-gmac", .data = &rk3128_ops },
-#endif
-#ifdef CONFIG_CPU_RK322X
 	{ .compatible = "rockchip,rk3228-gmac", .data = &rk3228_ops },
-#endif
-#ifdef CONFIG_CPU_RK3288
 	{ .compatible = "rockchip,rk3288-gmac", .data = &rk3288_ops },
-#endif
-#ifdef CONFIG_CPU_RK3308
 	{ .compatible = "rockchip,rk3308-mac",  .data = &rk3308_ops },
-#endif
-#ifdef CONFIG_CPU_RK3328
 	{ .compatible = "rockchip,rk3328-gmac", .data = &rk3328_ops },
-#endif
-#ifdef CONFIG_CPU_RK3366
 	{ .compatible = "rockchip,rk3366-gmac", .data = &rk3366_ops },
-#endif
-#ifdef CONFIG_CPU_RK3368
 	{ .compatible = "rockchip,rk3368-gmac", .data = &rk3368_ops },
-#endif
-#ifdef CONFIG_CPU_RK3399
 	{ .compatible = "rockchip,rk3399-gmac", .data = &rk3399_ops },
-#endif
-#ifdef CONFIG_CPU_RK3568
 	{ .compatible = "rockchip,rk3568-gmac", .data = &rk3568_ops },
-#endif
-#ifdef CONFIG_CPU_RK3588
 	{ .compatible = "rockchip,rk3588-gmac", .data = &rk3588_ops },
-#endif
-#ifdef CONFIG_CPU_RV1106
 	{ .compatible = "rockchip,rv1106-gmac", .data = &rv1106_ops },
-#endif
-#ifdef CONFIG_CPU_RV1108
 	{ .compatible = "rockchip,rv1108-gmac", .data = &rv1108_ops },
-#endif
-#ifdef CONFIG_CPU_RV1126
 	{ .compatible = "rockchip,rv1126-gmac", .data = &rv1126_ops },
-#endif
 	{ }
 };
 MODULE_DEVICE_TABLE(of, rk_gmac_dwmac_match);
