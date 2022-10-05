@@ -82,7 +82,6 @@ static inline int rockchip_soc_id_init(void)
 
 #endif
 
-#ifdef CONFIG_CPU_PX30
 static inline bool cpu_is_px30(void)
 {
 	if (rockchip_soc_id)
@@ -92,9 +91,6 @@ static inline bool cpu_is_px30(void)
 	       of_machine_is_compatible("rockchip,rk3326") ||
 	       of_machine_is_compatible("rockchip,rk3326s");
 }
-#else
-static inline bool cpu_is_px30(void) { return false; }
-#endif
 
 #if defined(CONFIG_CPU_RV1126) || defined(CONFIG_CPU_RV1109)
 static inline bool cpu_is_rv1109(void)
@@ -129,7 +125,6 @@ static inline bool cpu_is_rk312x(void)
 static inline bool cpu_is_rk312x(void) { return false; }
 #endif
 
-#ifdef CONFIG_CPU_RK3288
 static inline bool cpu_is_rk3288(void)
 {
 	if (rockchip_soc_id)
@@ -137,9 +132,6 @@ static inline bool cpu_is_rk3288(void)
 	return of_machine_is_compatible("rockchip,rk3288") ||
 	       of_machine_is_compatible("rockchip,rk3288w");
 }
-#else
-static inline bool cpu_is_rk3288(void) { return false; }
-#endif
 
 #ifdef CONFIG_CPU_RK3308
 static inline bool cpu_is_rk3308(void)
@@ -154,7 +146,6 @@ static inline bool cpu_is_rk3308(void)
 static inline bool cpu_is_rk3308(void) { return false; }
 #endif
 
-#if defined(CONFIG_CPU_RK3568)
 static inline bool cpu_is_rk3566(void)
 {
 	if (rockchip_soc_id)
@@ -168,10 +159,6 @@ static inline bool cpu_is_rk3568(void)
 		return (rockchip_soc_id & ROCKCHIP_CPU_MASK) == ROCKCHIP_CPU_RK3568;
 	return of_machine_is_compatible("rockchip,rk3568");
 }
-#else
-static inline bool cpu_is_rk3566(void) { return false; }
-static inline bool cpu_is_rk3568(void) { return false; }
-#endif
 
 #define ROCKCHIP_SOC_MASK	(ROCKCHIP_CPU_MASK | 0xff)
 #define ROCKCHIP_SOC_PX30	(ROCKCHIP_CPU_PX30 | 0x00)
