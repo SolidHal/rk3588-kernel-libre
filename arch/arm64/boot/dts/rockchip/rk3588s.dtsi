@@ -5207,7 +5207,7 @@
 		reg-io-width = <4>;
 		dmas = <&dmac0 10>, <&dmac0 11>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&uart2m2_xfer>;
+		pinctrl-0 = <&uart2m1_xfer>;
 		status = "disabled";
 	};
 
