@@ -233,6 +233,13 @@ config PCIE_ROCKCHIP_DW_HOST
 	  Enables support for the DesignWare PCIe controller in the
 	  Rockchip SoC except RK3399.
 
+config PCIE_RK_THREADED_INIT
+	bool "Threaded initialize Rockchip DW based PCIe controller"
+	depends on PCIE_ROCKCHIP_DW_HOST
+	default y
+	help
+	  Enables threaded initialize Rockchip DW based PCIe controller.
+
 config PCIE_INTEL_GW
 	bool "Intel Gateway PCIe host controller support"
 	depends on OF && (X86 || COMPILE_TEST)
