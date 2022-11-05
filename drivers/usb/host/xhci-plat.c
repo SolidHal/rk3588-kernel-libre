@@ -186,6 +186,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
 	struct xhci_plat_priv	*priv = NULL;
 
 
+  dev_err(&pdev->dev, "SOLIDHAL: xhci_plat_probe: start\n");
 	if (usb_disabled())
 		return -ENODEV;
 
@@ -362,6 +363,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
 	 */
 	pm_runtime_forbid(&pdev->dev);
 
+  dev_err(&pdev->dev, "SOLIDHAL: xhci_plat_probe: complete\n");
 	return 0;
 
 
@@ -387,6 +389,7 @@ disable_runtime:
 	pm_runtime_put_noidle(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
 
+  dev_err(&pdev->dev, "SOLIDHAL: xhci_plat_probe: failed: error: %d\n", ret);
 	return ret;
 }
 

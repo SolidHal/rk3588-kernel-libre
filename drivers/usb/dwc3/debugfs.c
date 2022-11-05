@@ -440,7 +440,7 @@ static ssize_t dwc3_mode_write(struct file *file,
 	if (!strncmp(buf, "otg", 3))
 		mode = DWC3_GCTL_PRTCAP_OTG;
 
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 	dwc->desired_role_sw_mode = mode;
 #endif
 

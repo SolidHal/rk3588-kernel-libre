@@ -45,6 +45,7 @@ static int dwc3_haps_probe(struct pci_dev *pci,
 	struct resource		res[2];
 	int			ret;
 
+  dev_err(dev, "SOLIDHAL: dwc3_haps_probe: start\n");
 	ret = pcim_enable_device(pci);
 	if (ret) {
 		dev_err(dev, "failed to enable pci device\n");
@@ -93,9 +94,12 @@ static int dwc3_haps_probe(struct pci_dev *pci,
 
 	pci_set_drvdata(pci, dwc);
 
+  dev_err(dev, "SOLIDHAL: dwc3_haps_probe: complete\n");
 	return 0;
 err:
 	platform_device_put(dwc->dwc3);
+
+  dev_err(dev, "SOLIDHAL: dwc3_haps_probe: error: %d\n", ret);
 	return ret;
 }
 

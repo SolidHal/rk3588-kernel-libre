@@ -244,6 +244,7 @@ static int ehci_platform_probe(struct platform_device *dev)
 	struct ehci_hcd *ehci;
 	int err, irq, clk = 0;
 
+  dev_err(&dev->dev, "SOLIDHAL: ehci_platform_probe: start\n");
 	if (usb_disabled())
 		return -ENODEV;
 
@@ -381,6 +382,8 @@ static int ehci_platform_probe(struct platform_device *dev)
 	if (priv->quirk_poll)
 		quirk_poll_init(priv);
 
+
+  dev_err(&dev->dev, "SOLIDHAL: ehci_platform_probe: complete: code %d\n", err);
 	return err;
 
 err_power:
@@ -397,6 +400,7 @@ err_put_clks:
 
 	usb_put_hcd(hcd);
 
+  dev_err(&dev->dev, "SOLIDHAL: ehci_platform_probe: failed: error %d\n", err);
 	return err;
 }
 

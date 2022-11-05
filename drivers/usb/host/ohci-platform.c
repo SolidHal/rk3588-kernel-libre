@@ -32,7 +32,7 @@
 #include "ohci.h"
 
 #define DRIVER_DESC "OHCI generic platform driver"
-#define OHCI_MAX_CLKS 3
+#define OHCI_MAX_CLKS 4
 #define hcd_to_ohci_priv(h) ((struct ohci_platform_priv *)hcd_to_ohci(h)->priv)
 
 struct ohci_platform_priv {
@@ -96,6 +96,7 @@ static int ohci_platform_probe(struct platform_device *dev)
 	struct ohci_hcd *ohci;
 	int err, irq, clk = 0;
 
+  dev_err(&dev->dev, "SOLIDHAL: ohci_platform_probe: start\n");
 	if (usb_disabled())
 		return -ENODEV;
 
@@ -218,6 +219,7 @@ static int ohci_platform_probe(struct platform_device *dev)
 
 	platform_set_drvdata(dev, hcd);
 
+  dev_err(&dev->dev, "SOLIDHAL: ohci_platform_probe: complete: code: %d\n", err);
 	return err;
 
 err_power:
@@ -235,6 +237,7 @@ err_put_clks:
 
 	usb_put_hcd(hcd);
 
+  dev_err(&dev->dev, "SOLIDHAL: ohci_platform_probe: failed: error: %d\n", err);
 	return err;
 }
 

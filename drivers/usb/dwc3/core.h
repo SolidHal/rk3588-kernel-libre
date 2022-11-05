@@ -1156,7 +1156,7 @@ struct dwc3 {
 	enum usb_phy_interface	hsphy_mode;
 	struct usb_role_switch	*role_sw;
 	enum usb_dr_mode	role_switch_default_mode;
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 	u32			current_role_sw_mode;
 	u32			desired_role_sw_mode;
 #endif

@@ -421,7 +421,7 @@ static void dwc3_drd_update(struct dwc3 *dwc)
 		if (id < 0)
 			id = 0;
 
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 		if (extcon_get_state(dwc->edev, EXTCON_USB))
 			dwc->desired_role_sw_mode = USB_DR_MODE_PERIPHERAL;
 #endif
@@ -437,7 +437,7 @@ static int dwc3_drd_notifier(struct notifier_block *nb,
 {
 	struct dwc3 *dwc = container_of(nb, struct dwc3, edev_nb);
 
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 	if (extcon_get_state(dwc->edev, EXTCON_USB))
 		dwc->desired_role_sw_mode = USB_DR_MODE_PERIPHERAL;
 	else if (extcon_get_state(dwc->edev, EXTCON_USB_HOST))
@@ -506,7 +506,7 @@ static int dwc3_usb_role_switch_set(struct usb_role_switch *sw,
 	struct dwc3 *dwc = usb_role_switch_get_drvdata(sw);
 	u32 mode;
 
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 	dwc->desired_role_sw_mode = role;
 	phy_set_mode_ext(dwc->usb2_generic_phy, PHY_MODE_USB_OTG, role);
 #endif

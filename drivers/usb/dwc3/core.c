@@ -126,7 +126,7 @@ static void __dwc3_set_mode(struct work_struct *work)
 
 	pm_runtime_get_sync(dwc->dev);
 
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 	if (dwc->desired_role_sw_mode == USB_DR_MODE_PERIPHERAL &&
 	    dwc->desired_role_sw_mode != dwc->current_role_sw_mode)
 		pm_runtime_get(dwc->dev);
@@ -1571,6 +1571,9 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	void __iomem		*regs;
 
+
+  dev_err(dev, "SOLIDHAL: dwc3_probe: start\n");
+
 	vdwc = devm_kzalloc(dev, sizeof(*vdwc), GFP_KERNEL);
 	if (!vdwc)
 		return -ENOMEM;
@@ -1686,7 +1689,7 @@ static int dwc3_probe(struct platform_device *pdev)
 	if (dwc->dr_mode == USB_DR_MODE_OTG &&
 	    of_device_is_compatible(dev->parent->of_node,
 				    "rockchip,rk3399-dwc3")) {
-#if defined(CONFIG_ARCH_ROCKCHIP) && defined(CONFIG_NO_GKI)
+#if defined(CONFIG_ARCH_ROCKCHIP)
 		pm_runtime_set_autosuspend_delay(dev, 100);
 #endif
 		pm_runtime_allow(dev);
@@ -1695,6 +1698,7 @@ static int dwc3_probe(struct platform_device *pdev)
 		pm_runtime_put(dev);
 	}
 
+  dev_err(dev, "SOLIDHAL: dwc3_probe: complete\n");
 	return 0;
 
 err5:
@@ -1734,6 +1738,7 @@ assert_reset:
 	if (dwc->usb_psy)
 		power_supply_put(dwc->usb_psy);
 
+  dev_err(dev, "SOLIDHAL: dwc3_probe: return error: %d\n", ret);
 	return ret;
 }
 
