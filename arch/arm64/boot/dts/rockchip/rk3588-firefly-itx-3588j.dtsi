@@ -18,6 +18,38 @@
 		#cooling-cells = <2>;
 		fan-supply = <&vcc12v_dcin>;
 		pwms = <&pwm15 0 50000 1>;
+		cooling-levels = <0 100 150 200 255>;
+	};
+};
+
+
+&soc_thermal {
+	trips {
+		soc_warm: soc_warm {
+			temperature = <60000>;
+			hysteresis = <2000>;
+			type = "active";
+		};
+
+		soc_hot: soc_hot {
+			temperature = <70000>;
+			hysteresis = <2000>;
+			type = "active";
+		};
+	};
+
+	cooling-maps {
+		map4 {
+			trip = <&soc_warm>;
+			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
+			contribution = <1024>;
+		};
+
+		map5 {
+			trip = <&soc_hot>;
+			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
+			contribution = <1024>;
+		};
 	};
 };
 
