@@ -1191,7 +1191,6 @@ static int rockchip_udphy_probe(struct platform_device *pdev)
 	void __iomem *base;
 	int id, ret;
 
-  dev_err(dev, "SOLIDHAL: rockchip_udphy_probe: start\n");
 	udphy = devm_kzalloc(dev, sizeof(*udphy), GFP_KERNEL);
 	if (!udphy)
 		return -ENOMEM;
@@ -1281,12 +1280,10 @@ static int rockchip_udphy_probe(struct platform_device *pdev)
 		goto put_child;
 	}
 
-  dev_err(dev, "SOLIDHAL: rockchip_udphy_probe: complete\n");
 	return 0;
 
 put_child:
 	of_node_put(child_np);
-  dev_err(dev, "SOLIDHAL: rockchip_udphy_probe: error: %d\n", ret);
 	return ret;
 }
 

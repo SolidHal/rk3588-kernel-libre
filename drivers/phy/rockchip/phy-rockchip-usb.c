@@ -787,7 +787,6 @@ static int rockchip_usb_phy_init(struct rockchip_usb_phy_base *base,
 	struct clk_init_data init = {};
 	int err, i;
 
-  dev_err(base->dev, "SOLIDHAL: rockchip_usb_phy_init: start\n");
 	rk_phy = devm_kzalloc(base->dev, sizeof(*rk_phy), GFP_KERNEL);
 	if (!rk_phy)
 		return -ENOMEM;
@@ -882,7 +881,6 @@ static int rockchip_usb_phy_init(struct rockchip_usb_phy_base *base,
 		rk_phy->vbus = NULL;
 	}
 
-  dev_err(base->dev, "SOLIDHAL: rockchip_usb_phy_init: complete\n");
 	/*
 	 * When acting as uart-pipe, just keep clock on otherwise
 	 * only power up usb phy when it use, so disable it when init
@@ -898,7 +896,6 @@ err_clk_prov:
 err_clk:
 	if (rk_phy->clk)
 		clk_put(rk_phy->clk);
-  dev_err(base->dev, "SOLIDHAL: rockchip_usb_phy_init: error: %d\n", err);
 	return err;
 }
 

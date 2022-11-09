@@ -38,7 +38,6 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
 
 	int			ret;
 
-  dev_err(dev, "SOLIDHAL: dwc3_of_simple_probe: start\n");
 	simple = devm_kzalloc(dev, sizeof(*simple), GFP_KERNEL);
 	if (!simple)
 		return -ENOMEM;
@@ -82,7 +81,6 @@ static int dwc3_of_simple_probe(struct platform_device *pdev)
 	pm_runtime_enable(dev);
 	pm_runtime_get_sync(dev);
 
-  dev_err(dev, "SOLIDHAL: dwc3_of_simple_probe: complete\n");
 	return 0;
 
 err_clk_put:
@@ -95,7 +93,6 @@ err_resetc_assert:
 err_resetc_put:
 	reset_control_put(simple->resets);
 
-  dev_err(dev, "SOLIDHAL: dwc3_of_simple_probe: error: %d\n", ret);
 	return ret;
 }
 

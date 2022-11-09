@@ -1572,7 +1572,6 @@ static int dwc3_probe(struct platform_device *pdev)
 	void __iomem		*regs;
 
 
-  dev_err(dev, "SOLIDHAL: dwc3_probe: start\n");
 
 	vdwc = devm_kzalloc(dev, sizeof(*vdwc), GFP_KERNEL);
 	if (!vdwc)
@@ -1698,7 +1697,6 @@ static int dwc3_probe(struct platform_device *pdev)
 		pm_runtime_put(dev);
 	}
 
-  dev_err(dev, "SOLIDHAL: dwc3_probe: complete\n");
 	return 0;
 
 err5:
@@ -1738,7 +1736,6 @@ assert_reset:
 	if (dwc->usb_psy)
 		power_supply_put(dwc->usb_psy);
 
-  dev_err(dev, "SOLIDHAL: dwc3_probe: return error: %d\n", ret);
 	return ret;
 }
 
