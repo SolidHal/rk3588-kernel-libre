@@ -18,7 +18,7 @@
 		#cooling-cells = <2>;
 		fan-supply = <&vcc12v_dcin>;
 		pwms = <&pwm15 0 50000 1>;
-		cooling-levels = <0 100 150 200 255>;
+		cooling-levels = <64 150 200 255>;
 	};
 };
 
