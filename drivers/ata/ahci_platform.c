@@ -62,8 +62,8 @@ static int ahci_probe(struct platform_device *pdev)
 	if (of_device_is_compatible(dev->of_node, "hisilicon,hisi-ahci"))
 		hpriv->flags |= AHCI_HFLAG_NO_FBS | AHCI_HFLAG_NO_NCQ;
 
-	if (of_device_is_compatible(dev->of_node, "rockchip,rk-ahci"))
-		hpriv->flags |= AHCI_HFLAG_YES_FBS;
+	/* if (of_device_is_compatible(dev->of_node, "rockchip,rk-ahci")) */
+	/* 	hpriv->flags |= AHCI_HFLAG_YES_FBS; */
 
 	port = acpi_device_get_match_data(dev);
 	if (!port)
